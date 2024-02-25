@@ -1,7 +1,6 @@
 package lexer
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/viilis/token"
@@ -20,7 +19,16 @@ func TestNextToken(t *testing.T) {
 	let add = fn(x, y) {
 		x + y;
 	};
+
 	let result = add(five, ten);
+
+	if else return true false;
+
+	!-/*5;
+	5 < 10 > 5;
+
+	10 == 10;
+	10 != 5;
 	`
 
 	tests := []expectedToken{
@@ -60,6 +68,32 @@ func TestNextToken(t *testing.T) {
 		{token.IDENTIFIER, "ten"},
 		{token.RPAREN, ")"},
 		{token.SEMICOLON, ";"},
+		{token.IF, "if"},
+		{token.ELSE, "else"},
+		{token.RETURN, "return"},
+		{token.TRUE, "true"},
+		{token.FALSE, "false"},
+		{token.SEMICOLON, ";"},
+		{token.BANG, "!"},
+		{token.MINUS, "-"},
+		{token.SLASH, "/"},
+		{token.ASTERISK, "*"},
+		{token.INT, "5"},
+		{token.SEMICOLON, ";"},
+		{token.INT, "5"},
+		{token.LT, "<"},
+		{token.INT, "10"},
+		{token.GT, ">"},
+		{token.INT, "5"},
+		{token.SEMICOLON, ";"},
+		{token.INT, "10"},
+		{token.EQUAL, "=="},
+		{token.INT, "10"},
+		{token.SEMICOLON, ";"},
+		{token.INT, "10"},
+		{token.NOT_EQUAL, "!="},
+		{token.INT, "5"},
+		{token.SEMICOLON, ";"},
 		{token.EOF, ""},
 	}
 
@@ -67,7 +101,6 @@ func TestNextToken(t *testing.T) {
 
 	for i, testToken := range tests {
 		token := lexer.NextToken()
-		fmt.Println(token)
 
 		if token.Type != testToken.expectedType {
 			t.Fatalf(

@@ -23,7 +23,14 @@ func (lexer *Lexer) NextToken() token.Token {
 
 	switch lexer.character {
 	case '=':
-		tok = newToken(token.ASSIGN, lexer.character)
+		nextChar := lexer.peekChar()
+		if nextChar == '=' {
+			tokenLiteral := string(lexer.character) + string(nextChar)
+			lexer.readChar()
+			tok = token.Token{Type: token.EQUAL, Literal: tokenLiteral}
+		} else {
+			tok = newToken(token.ASSIGN, lexer.character)
+		}
 	case ';':
 		tok = newToken(token.SEMICOLON, lexer.character)
 	case '(':
@@ -40,6 +47,23 @@ func (lexer *Lexer) NextToken() token.Token {
 		tok = newToken(token.LBRACE, lexer.character)
 	case '}':
 		tok = newToken(token.RBRACE, lexer.character)
+	case '!':
+		nextChar := lexer.peekChar()
+		if nextChar == '=' {
+			tokenLiteral := string(lexer.character) + string(nextChar)
+			lexer.readChar()
+			tok = token.Token{Type: token.NOT_EQUAL, Literal: tokenLiteral}
+		} else {
+			tok = newToken(token.BANG, lexer.character)
+		}
+	case '*':
+		tok = newToken(token.ASTERISK, lexer.character)
+	case '/':
+		tok = newToken(token.SLASH, lexer.character)
+	case '<':
+		tok = newToken(token.LT, lexer.character)
+	case '>':
+		tok = newToken(token.GT, lexer.character)
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
@@ -62,6 +86,14 @@ func (lexer *Lexer) NextToken() token.Token {
 	return tok
 }
 
+func (l *Lexer) peekChar() byte {
+	if l.readPosition >= len(l.input) {
+		return 0
+	} else {
+		return l.input[l.readPosition]
+	}
+}
+
 // Reads current character and sets positions ready for reading next one.
 // Supports only ASCII. For UTF-8 support, implement lexer to support runes and read of multiple bytes
 func (lexer *Lexer) readChar() {
@@ -78,6 +110,8 @@ func (lexer *Lexer) readChar() {
 func newToken(tokenType token.Tokentype, character byte) token.Token {
 	return token.Token{Type: tokenType, Literal: string(character)}
 }
+
+//TODO: Generalize reading indentifiers and numbers.
 
 // Used for reading indentifiers from given code. Supports ASCII identifier names (a-z, A-Z and '_')
 func (lexer *Lexer) readIdentifiers() string {
