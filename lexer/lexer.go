@@ -19,6 +19,8 @@ func New(input string) *Lexer {
 func (lexer *Lexer) NextToken() token.Token {
 	var tok token.Token
 
+	lexer.skipWhitespace()
+
 	switch lexer.character {
 	case '=':
 		tok = newToken(token.ASSIGN, lexer.character)
@@ -44,6 +46,11 @@ func (lexer *Lexer) NextToken() token.Token {
 	default:
 		if isLetter(lexer.character) {
 			tok.Literal = lexer.readIdentifiers()
+			tok.Type = token.LookupIdentifier(tok.Literal)
+			return tok
+		} else if isNumber(lexer.character) {
+			tok.Literal = lexer.readNumber()
+			tok.Type = token.INT
 			return tok
 		} else {
 			tok = newToken(token.ILLEGAL, lexer.character)
@@ -72,7 +79,7 @@ func newToken(tokenType token.Tokentype, character byte) token.Token {
 	return token.Token{Type: tokenType, Literal: string(character)}
 }
 
-// Use for reading indentifier from code. Supports ASCII identifier names (a-z, A-Z and '_')
+// Used for reading indentifiers from given code. Supports ASCII identifier names (a-z, A-Z and '_')
 func (lexer *Lexer) readIdentifiers() string {
 	position := lexer.position
 
@@ -83,7 +90,30 @@ func (lexer *Lexer) readIdentifiers() string {
 	return lexer.input[position:lexer.position]
 }
 
+// Used for reading integers from given code.
+func (lexer *Lexer) readNumber() string {
+	position := lexer.position
+
+	for isNumber(lexer.character) {
+		lexer.readChar()
+	}
+
+	return lexer.input[position:lexer.position]
+}
+
 // Helper func for reading indentifiers. Checks if give argument is letter between a-z, A-Z or _
 func isLetter(char byte) bool {
 	return 'a' <= char && char <= 'z' || 'A' <= char && char <= 'Z' || char == '_'
+}
+
+// Consumes whitespaces.
+func (lexer *Lexer) skipWhitespace() {
+	for lexer.character == ' ' || lexer.character == '\t' || lexer.character == '\n' || lexer.character == '\r' {
+		lexer.readChar()
+	}
+}
+
+// Helper func for reading numbers.
+func isNumber(char byte) bool {
+	return '0' <= char && char <= '9'
 }
