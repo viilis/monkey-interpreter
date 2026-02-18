@@ -1,2 +1,2 @@
 # monkey-interpreter
-Project is based on Writing an Interpreter in Go by Thorsten Ball
+Project is based on _Writing an Interpreter in Go_ by Thorsten Ball
